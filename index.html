@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DO GOALS</title>
+    <link rel="icon" href="./app-icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div class="brand">
+          <img class="app-icon" src="./app-icon.svg" alt="" />
+          <div>
+            <p class="eyebrow">MVP трекер</p>
+            <h1>DO GOALS</h1>
+          </div>
+        </div>
+        <div class="summary" aria-live="polite">
+          <span id="summaryCount">0 задач</span>
+          <strong id="summaryProgress">0%</strong>
+        </div>
+      </header>
+
+      <section class="tasks-section" aria-label="Список задач">
+        <div id="tasksList" class="tasks-list"></div>
+
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon" aria-hidden="true">✓</div>
+          <h2>Пока задач нет</h2>
+          <p>Нажмите кнопку ниже, чтобы создать задачу с периодом и количеством пунктов.</p>
+        </div>
+      </section>
+    </main>
+
+    <button id="openTaskForm" class="floating-add" type="button">+ Добавить задачу</button>
+
+    <div id="taskSheet" class="sheet" hidden>
+      <div class="sheet-backdrop" data-close-sheet></div>
+      <section class="sheet-panel" aria-label="Форма добавления задачи">
+        <div class="sheet-handle" aria-hidden="true"></div>
+        <div class="sheet-head">
+          <div>
+            <p class="eyebrow">Новая задача</p>
+            <h2>Добавить задачу</h2>
+          </div>
+          <button class="icon-button" type="button" data-close-sheet aria-label="Закрыть форму">×</button>
+        </div>
+
+        <form id="taskForm" class="form">
+          <label>
+            Название задачи
+            <input id="taskTitle" type="text" placeholder="Например: тренировки" required />
+          </label>
+
+          <div>
+            <p class="field-title">Быстрый период</p>
+            <div class="period-options" role="group" aria-label="Выбор периода">
+              <button class="period-option is-active" type="button" data-period="month">Месяц</button>
+              <button class="period-option" type="button" data-period="year">Год</button>
+              <button class="period-option" type="button" data-period="custom">Свои даты</button>
+            </div>
+          </div>
+
+          <div class="date-grid">
+            <label>
+              Дата начала
+              <input id="startDate" type="date" required />
+            </label>
+            <label>
+              Дата конца
+              <input id="endDate" type="date" required />
+            </label>
+          </div>
+
+          <label>
+            Количество пунктов
+            <input id="taskTotal" type="number" min="1" max="999" value="5" required />
+          </label>
+
+          <button class="primary-button" type="submit">Создать задачу</button>
+        </form>
+      </section>
+    </div>
+
+    <template id="taskTemplate">
+      <article class="task-card">
+        <div class="task-top">
+          <div>
+            <div class="task-title-row">
+              <h2 class="task-title"></h2>
+              <span class="task-status"></span>
+            </div>
+            <p class="task-period"></p>
+          </div>
+          <span class="deadline-indicator" aria-hidden="true"></span>
+          <button class="delete-button" type="button" data-action="delete" aria-label="Удалить задачу">×</button>
+        </div>
+
+        <div class="task-progress-row">
+          <strong class="task-counter"></strong>
+          <span class="task-percent"></span>
+        </div>
+
+        <div class="progress-track" aria-hidden="true">
+          <div class="progress-fill"></div>
+        </div>
+
+        <div class="task-actions">
+          <button class="step-button" type="button" data-action="decrement" aria-label="Уменьшить выполненные пункты">-</button>
+          <button class="step-button step-button-primary" type="button" data-action="increment" aria-label="Добавить выполненный пункт">+</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
