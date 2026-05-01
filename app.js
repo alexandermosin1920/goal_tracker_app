@@ -153,7 +153,7 @@ function updateTaskCard(card, task, options = {}) {
   const incrementButton = card.querySelector('[data-action="increment"]');
   const deadlineIndicator = card.querySelector(".deadline-indicator");
 
-  card.classList.toggle("is-complete");
+  card.classList.toggle("is-complete", isComplete);
   card.classList.toggle("is-due-soon", deadline.isSoon && !isComplete);
   card.querySelector(".task-title").textContent = task.title;
   card.querySelector(".task-status").textContent = isComplete ? "✓ Выполнено" : "В процессе";
@@ -170,10 +170,7 @@ function updateTaskCard(card, task, options = {}) {
     progressFill.style.width = `${percent}%`;
   }
 
-  something.style.setProperty(
-  "--deadline-progress",
-  `${progress}deg`
-);
+  deadlineIndicator.style.setProperty("--deadline-progress", `${deadline.degrees}deg`);
   deadlineIndicator.style.setProperty("--deadline-color", deadline.color);
   deadlineIndicator.style.setProperty("--deadline-minute-angle", `${deadline.minuteAngle}deg`);
   deadlineIndicator.style.setProperty("--deadline-hour-angle", `${deadline.hourAngle}deg`);
