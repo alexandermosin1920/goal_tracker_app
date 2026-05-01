@@ -122,17 +122,28 @@ function createTaskCard(task) {
   incrementButton.disabled = isComplete;
 
   decrementButton.addEventListener("click", () => {
-    task.completed = clampNumber(task.completed - 1, 0, task.total);
+    updateTaskById(task.id, (currentTask) => ({
+      ...currentTask,
+      completed: clampNumber(currentTask.completed - 1, 0, currentTask.total),
+    }));
     saveTasks();
     render();
   });
 
   incrementButton.addEventListener("click", () => {
-    const wasComplete = isTaskComplete(task);
-    task.completed = clampNumber(task.completed + 1, 0, task.total);
-    if (!wasComplete && isTaskComplete(task)) {
-      recentlyCompletedTaskId = task.id;
-    }
+    updateTaskById(task.id, (currentTask) => {
+      const wasComplete = isTaskComplete(currentTask);
+      const updatedTask = {
+        ...currentTask,
+        completed: clampNumber(currentTask.completed + 1, 0, currentTask.total),
+      };
+
+      if (!wasComplete && isTaskComplete(updatedTask)) {
+        recentlyCompletedTaskId = currentTask.id;
+      }
+
+      return updatedTask;
+    });
     saveTasks();
     render();
   });
@@ -270,6 +281,16 @@ function normalizeTask(task) {
 
 function saveTasks() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+}
+
+function updateTaskById(taskId, updater) {
+  tasks = tasks.map((task) => {
+    if (task.id !== taskId) {
+      return task;
+    }
+
+    return normalizeTask(updater(task));
+  });
 }
 
 function isTaskComplete(task) {
