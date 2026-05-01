@@ -735,13 +735,13 @@ input:focus {
     transition-duration: 1ms !important;
   }
 }
-/* Плавность интерфейса */
+/* Плавность для всех элементов */
 * {
   transition: all 0.25s ease-in-out;
 }
 
 /* Кнопки */
-button {
+button, .btn {
   transition: all 0.2s ease;
 }
 
@@ -749,19 +749,19 @@ button:active {
   transform: scale(0.95);
 }
 
-/* Карточки */
-.card {
+/* Карточки задач */
+.task, .card, .goal {
   transition: all 0.3s ease;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+.task:hover, .card:hover {
+  transform: translateY(-3px);
 }
 
-/* Прогресс бар */
-.progress-bar {
+/* Прогресс */
+.progress, .progress-bar {
   transition: width 0.4s ease-in-out;
+}
 }
 .completed {
   animation: completeAnim 0.6s ease;
