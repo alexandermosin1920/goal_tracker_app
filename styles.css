@@ -281,7 +281,7 @@ h2 {
   width: 1.25px;
   border-radius: 999px;
   background: rgba(107, 116, 133, 0.72);
-  transform-origin: 50% 90%;
+  transform-origin: 50% 100%;
   transition: transform 320ms ease-in-out;
 }
 
