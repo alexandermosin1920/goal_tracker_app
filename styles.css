@@ -770,3 +770,71 @@ input:focus {
     transition-duration: 1ms !important;
   }
 }
+/* === CLOCK === */
+.clock {
+  width: 40px;
+  height: 40px;
+  position: relative;
+}
+
+.clock svg {
+  transform: rotate(-90deg);
+}
+
+.clock circle {
+  fill: none;
+  stroke-width: 4;
+}
+
+.clock .bg {
+  stroke: #e5e5e5;
+}
+
+.clock .progress {
+  stroke: #ffd54f;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.4s ease, stroke 0.4s ease;
+}
+
+/* центр */
+.clock .center-dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #333;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* стрелки */
+.clock .hand {
+  position: absolute;
+  width: 1.5px;
+  height: 10px;
+  background: #333;
+  top: 50%;
+  left: 50%;
+  transform-origin: bottom center;
+}
+
+/* === BUTTON ANIMATION === */
+button {
+  transition: transform 0.15s ease-out;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+/* === COMPLETE ANIMATION === */
+.completed {
+  animation: completeAnim 0.5s ease;
+}
+
+@keyframes completeAnim {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}

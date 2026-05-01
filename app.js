@@ -419,7 +419,9 @@ function playPressAnimation(button) {
 function playCompletionAnimation(card) {
   card.classList.remove("just-completed");
   void card.offsetWidth;
-  card.classList.add("just-completed");
+  card.if (!element.classList.contains("completed")) {
+  element.classList.add("completed");
+}
   setTimeout(() => {
     card.classList.remove("just-completed");
   }, 760);
@@ -462,4 +464,23 @@ function createId() {
   }
 
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+function updateClock(circle, percent) {
+  const radius = 16;
+  const circumference = 2 * Math.PI * radius;
+
+  circle.style.strokeDasharray = circumference;
+  circle.style.strokeDashoffset = circumference * (1 - percent);
+
+  let r, g;
+
+  if (percent < 0.5) {
+    r = 255;
+    g = 200 + percent * 100;
+  } else {
+    r = 255;
+    g = 200 - percent * 200;
+  }
+
+  circle.style.stroke = `rgb(${r}, ${g}, 0)`;
 }
