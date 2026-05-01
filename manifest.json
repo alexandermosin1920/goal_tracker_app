@@ -1,0 +1,23 @@
+{
+  "name": "DO GOALS",
+  "short_name": "DO GOALS",
+  "description": "Трекер задач и прогресса по шагам.",
+  "display": "standalone",
+  "background_color": "#f6f7f4",
+  "theme_color": "#f6f7f4",
+  "start_url": "./index.html",
+  "icons": [
+    {
+      "src": "./apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./favicon.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
