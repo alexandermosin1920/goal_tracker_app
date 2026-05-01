@@ -186,6 +186,10 @@ function updateTaskCard(card, task, options = {}) {
     playCompletionAnimation(card);
   }
 
+  if (!isComplete) {
+    card.classList.remove("completed");
+  }
+
   card.dataset.completedState = String(isComplete);
 }
 
@@ -417,6 +421,11 @@ function playPressAnimation(button) {
 }
 
 function playCompletionAnimation(card) {
+  if (card.classList.contains("completed")) {
+    return;
+  }
+
+  card.classList.add("completed");
   card.classList.remove("just-completed");
   void card.offsetWidth;
   card.classList.add("just-completed");
