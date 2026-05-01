@@ -82,70 +82,61 @@ endDateInput.addEventListener("input", () => {
 });
 
 function render() {
-  tasksList.replaceChildren();
-
-  getSortedTasks().forEach((task) => {
-    tasksList.appendChild(createTaskCard(task));
-  });
-
+  renderTaskList();
   emptyState.hidden = tasks.length > 0;
   updateSummary();
   recentlyCompletedTaskId = null;
 }
 
+function renderTaskList() {
+  tasksList.replaceChildren();
+
+  getSortedTasks().forEach((task) => {
+    tasksList.appendChild(createTaskCard(task));
+  });
+}
+
 function createTaskCard(task) {
   const card = taskTemplate.content.firstElementChild.cloneNode(true);
-  const isComplete = isTaskComplete(task);
-  const percent = getTaskPercent(task);
-  const deadline = getDeadlineState(task);
-
-  card.classList.toggle("is-complete", isComplete);
-  card.classList.toggle("is-due-soon", deadline.isSoon && !isComplete);
-  card.classList.toggle("just-completed", task.id === recentlyCompletedTaskId);
-  card.querySelector(".task-title").textContent = task.title;
-  card.querySelector(".task-status").textContent = isComplete ? "✓ Выполнено" : "В процессе";
-  card.querySelector(".task-period").textContent = formatPeriod(task.startDate, task.endDate);
-  card.querySelector(".task-counter").textContent = `${task.completed} / ${task.total}`;
-  card.querySelector(".task-percent").textContent = `${percent}%`;
-  const progressFill = card.querySelector(".progress-fill");
-  progressFill.style.width = "0%";
-  requestAnimationFrame(() => {
-    progressFill.style.width = `${percent}%`;
+  card.dataset.taskId = task.id;
+  updateTaskCard(card, task, {
+    animateProgress: true,
+    animateCompletion: task.id === recentlyCompletedTaskId,
   });
-  card.querySelector(".deadline-indicator").style.setProperty("--deadline-progress", `${deadline.percent}%`);
 
   const decrementButton = card.querySelector('[data-action="decrement"]');
   const incrementButton = card.querySelector('[data-action="increment"]');
   const deleteButton = card.querySelector('[data-action="delete"]');
 
-  decrementButton.disabled = task.completed <= 0;
-  incrementButton.disabled = isComplete;
-
   decrementButton.addEventListener("click", () => {
-    updateTaskById(task.id, (currentTask) => ({
+    const updatedTask = updateTaskById(task.id, (currentTask) => ({
       ...currentTask,
       completed: clampNumber(currentTask.completed - 1, 0, currentTask.total),
     }));
+    updateTaskCard(card, updatedTask, { pressedButton: decrementButton });
     saveTasks();
-    render();
+    updateSummary();
   });
 
   incrementButton.addEventListener("click", () => {
-    updateTaskById(task.id, (currentTask) => {
+    const updatedTask = updateTaskById(task.id, (currentTask) => {
       const wasComplete = isTaskComplete(currentTask);
-      const updatedTask = {
+      const nextTask = {
         ...currentTask,
         completed: clampNumber(currentTask.completed + 1, 0, currentTask.total),
       };
 
-      if (!wasComplete && isTaskComplete(updatedTask)) {
-        recentlyCompletedTaskId = currentTask.id;
-      }
-
-      return updatedTask;
+      return {
+        ...nextTask,
+        justCompleted: !wasComplete && isTaskComplete(nextTask),
+      };
+    });
+    updateTaskCard(card, updatedTask, {
+      pressedButton: incrementButton,
+      animateCompletion: updatedTask.justCompleted,
     });
     saveTasks();
-    render();
+    updateSummary();
   });
 
   deleteButton.addEventListener("click", () => {
@@ -155,6 +146,49 @@ function createTaskCard(task) {
   });
 
   return card;
+}
+
+function updateTaskCard(card, task, options = {}) {
+  const isComplete = isTaskComplete(task);
+  const percent = getTaskPercent(task);
+  const deadline = getDeadlineState(task);
+  const progressFill = card.querySelector(".progress-fill");
+  const decrementButton = card.querySelector('[data-action="decrement"]');
+  const incrementButton = card.querySelector('[data-action="increment"]');
+  const deadlineIndicator = card.querySelector(".deadline-indicator");
+
+  card.classList.toggle("is-complete", isComplete);
+  card.classList.toggle("is-due-soon", deadline.isSoon && !isComplete);
+  card.querySelector(".task-title").textContent = task.title;
+  card.querySelector(".task-status").textContent = isComplete ? "✓ Выполнено" : "В процессе";
+  card.querySelector(".task-period").textContent = formatPeriod(task.startDate, task.endDate);
+  card.querySelector(".task-counter").textContent = `${task.completed} / ${task.total}`;
+  card.querySelector(".task-percent").textContent = `${percent}%`;
+
+  if (options.animateProgress) {
+    progressFill.style.width = "0%";
+    requestAnimationFrame(() => {
+      progressFill.style.width = `${percent}%`;
+    });
+  } else {
+    progressFill.style.width = `${percent}%`;
+  }
+
+  deadlineIndicator.style.setProperty("--deadline-progress", `${deadline.percent}%`);
+  deadlineIndicator.style.setProperty("--deadline-color", deadline.color);
+  deadlineIndicator.style.setProperty("--deadline-minute-angle", `${deadline.minuteAngle}deg`);
+  deadlineIndicator.style.setProperty("--deadline-hour-angle", `${deadline.hourAngle}deg`);
+
+  decrementButton.disabled = task.completed <= 0;
+  incrementButton.disabled = isComplete;
+
+  if (options.pressedButton) {
+    playPressAnimation(options.pressedButton);
+  }
+
+  if (options.animateCompletion) {
+    playCompletionAnimation(card);
+  }
 }
 
 function getSortedTasks() {
@@ -280,17 +314,26 @@ function normalizeTask(task) {
 }
 
 function saveTasks() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+  const serializableTasks = tasks.map(({ justCompleted, ...task }) => task);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(serializableTasks));
 }
 
 function updateTaskById(taskId, updater) {
+  let updatedTask = null;
   tasks = tasks.map((task) => {
     if (task.id !== taskId) {
       return task;
     }
 
-    return normalizeTask(updater(task));
+    const nextTask = updater(task);
+    updatedTask = {
+      ...normalizeTask(nextTask),
+      justCompleted: Boolean(nextTask.justCompleted),
+    };
+    return updatedTask;
   });
+
+  return updatedTask;
 }
 
 function isTaskComplete(task) {
@@ -307,12 +350,16 @@ function getDeadlineState(task) {
   const now = Date.now();
   const total = Math.max(end - start, 1);
   const remaining = end - now;
-  const percent = clampNumber(((now - start) / total) * 100, 0, 100);
+  const percent = clampProgress(((now - start) / total) * 100, 0, 100);
   const soonWindow = Math.max(total * 0.18, 3 * 24 * 60 * 60 * 1000);
+  const totalMinutes = (percent / 100) * 720;
 
   return {
     percent,
     isSoon: remaining <= soonWindow,
+    color: interpolateTimelineColor(percent / 100),
+    minuteAngle: (totalMinutes * 6) % 360,
+    hourAngle: (totalMinutes / 2) % 360,
   };
 }
 
@@ -354,6 +401,59 @@ function formatTasksCount(count) {
 function clampNumber(value, min, max) {
   if (!Number.isFinite(value)) return min;
   return Math.min(Math.max(Math.round(value), min), max);
+}
+
+function clampProgress(value, min, max) {
+  if (!Number.isFinite(value)) return min;
+  return Math.min(Math.max(value, min), max);
+}
+
+function playPressAnimation(button) {
+  button.classList.remove("is-pressed");
+  void button.offsetWidth;
+  button.classList.add("is-pressed");
+  setTimeout(() => {
+    button.classList.remove("is-pressed");
+  }, 200);
+}
+
+function playCompletionAnimation(card) {
+  card.classList.remove("just-completed");
+  void card.offsetWidth;
+  card.classList.add("just-completed");
+  setTimeout(() => {
+    card.classList.remove("just-completed");
+  }, 760);
+}
+
+function interpolateTimelineColor(progress) {
+  const palette = [
+    { stop: 0, color: [244, 221, 128] },
+    { stop: 0.3, color: [237, 197, 95] },
+    { stop: 0.6, color: [230, 151, 83] },
+    { stop: 0.8, color: [218, 114, 78] },
+    { stop: 1, color: [205, 84, 84] },
+  ];
+  const clampedProgress = Math.min(Math.max(progress, 0), 1);
+  const nextIndex = palette.findIndex((point) => clampedProgress <= point.stop);
+
+  if (nextIndex <= 0) {
+    return rgbToString(palette[0].color);
+  }
+
+  const end = palette[nextIndex];
+  const start = palette[nextIndex - 1];
+  const range = end.stop - start.stop || 1;
+  const localProgress = (clampedProgress - start.stop) / range;
+  const channels = start.color.map((channel, index) =>
+    Math.round(channel + (end.color[index] - channel) * localProgress),
+  );
+
+  return rgbToString(channels);
+}
+
+function rgbToString(channels) {
+  return `rgb(${channels[0]}, ${channels[1]}, ${channels[2]})`;
 }
 
 function createId() {

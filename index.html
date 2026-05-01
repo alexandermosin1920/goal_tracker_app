@@ -11,12 +11,14 @@
     <link rel="manifest" href="./manifest.json" />
     <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="./favicon.png" />
+    <link rel="icon" href="./app-icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="app-shell">
       <header class="app-header">
         <div class="brand">
+          <img class="app-icon" src="./app-icon.svg" alt="" />
           <div>
             <p class="eyebrow">MVP трекер</p>
             <h1>DO GOALS</h1>
@@ -99,7 +101,12 @@
             </div>
             <p class="task-period"></p>
           </div>
-          <span class="deadline-indicator" aria-hidden="true"></span>
+          <span class="deadline-indicator" aria-hidden="true">
+            <span class="deadline-indicator__face">
+              <span class="deadline-hand deadline-hand-hour"></span>
+              <span class="deadline-hand deadline-hand-minute"></span>
+            </span>
+          </span>
           <button class="delete-button" type="button" data-action="delete" aria-label="Удалить задачу">×</button>
         </div>
 

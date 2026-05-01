@@ -145,15 +145,15 @@ h2 {
   backdrop-filter: blur(20px);
   animation: cardIn 320ms ease-out both;
   transition:
-    background 220ms ease,
-    border-color 220ms ease,
-    box-shadow 220ms ease,
-    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    background 260ms ease-in-out,
+    border-color 260ms ease-in-out,
+    box-shadow 260ms ease-in-out,
+    transform 260ms ease-in-out;
 }
 
 .task-card:hover {
   box-shadow: 0 24px 58px rgba(31, 47, 41, 0.13);
-  transform: translateY(-2px) scale(1.004);
+  transform: translateY(-3px);
 }
 
 .task-card.is-complete {
@@ -213,9 +213,9 @@ h2 {
   font-size: 0.76rem;
   font-weight: 900;
   transition:
-    background 260ms ease,
-    color 260ms ease,
-    transform 260ms ease;
+    background 260ms ease-in-out,
+    color 260ms ease-in-out,
+    transform 260ms ease-in-out;
 }
 
 .task-card.is-complete .task-status {
@@ -236,48 +236,79 @@ h2 {
 
 .deadline-indicator {
   --deadline-progress: 0%;
+  --deadline-color: rgb(244, 221, 128);
+  --deadline-minute-angle: 0deg;
+  --deadline-hour-angle: 0deg;
   position: relative;
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
-  margin-top: 5px;
+  width: 34px;
+  height: 34px;
+  margin-top: 3px;
   border-radius: 50%;
   background:
-    radial-gradient(circle at center, var(--surface-solid) 55%, transparent 57%),
-    conic-gradient(rgba(32, 143, 104, 0.34) var(--deadline-progress), rgba(203, 214, 208, 0.5) 0);
-  box-shadow: inset 0 0 0 1px rgba(203, 214, 230, 0.65);
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.98) 53%, transparent 54%),
+    conic-gradient(from -90deg, var(--deadline-color) var(--deadline-progress), rgba(214, 221, 216, 0.5) 0);
+  box-shadow:
+    inset 0 0 0 1px rgba(203, 214, 230, 0.7),
+    0 6px 14px rgba(31, 47, 41, 0.06);
+  transition:
+    background 320ms ease-in-out,
+    box-shadow 260ms ease-in-out,
+    transform 260ms ease-in-out;
 }
 
-.deadline-indicator::before {
-  content: "";
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(107, 116, 133, 0.58);
+.deadline-indicator__face {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid rgba(107, 116, 133, 0.5);
   border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
 }
 
-.deadline-indicator::after {
+.deadline-indicator__face::after {
   content: "";
   position: absolute;
-  width: 2px;
-  height: 8px;
-  margin-top: -4px;
+  inset: 50% auto auto 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 50%;
+  background: rgba(107, 116, 133, 0.6);
+}
+
+.deadline-hand {
+  position: absolute;
+  left: 50%;
+  bottom: 50%;
+  width: 1.5px;
   border-radius: 999px;
-  background: rgba(107, 116, 133, 0.58);
+  background: rgba(107, 116, 133, 0.72);
   transform-origin: 50% 100%;
+  transition: transform 320ms ease-in-out;
+}
+
+.deadline-hand-hour {
+  height: 4.5px;
+  transform: translateX(-50%) rotate(var(--deadline-hour-angle));
+}
+
+.deadline-hand-minute {
+  height: 6.5px;
+  transform: translateX(-50%) rotate(var(--deadline-minute-angle));
 }
 
 .task-card.is-due-soon .deadline-indicator {
-  background:
-    radial-gradient(circle at center, #fffaf2 55%, transparent 57%),
-    conic-gradient(rgba(199, 154, 85, 0.46) var(--deadline-progress), rgba(226, 216, 200, 0.54) 0);
+  box-shadow:
+    inset 0 0 0 1px rgba(221, 183, 132, 0.36),
+    0 8px 18px rgba(212, 134, 77, 0.08);
 }
 
 .task-card.is-complete .deadline-indicator {
-  background:
-    radial-gradient(circle at center, #f8fffc 55%, transparent 57%),
-    conic-gradient(rgba(63, 191, 134, 0.38) var(--deadline-progress), rgba(203, 225, 219, 0.56) 0);
+  box-shadow:
+    inset 0 0 0 1px rgba(162, 212, 189, 0.48),
+    0 8px 18px rgba(63, 191, 134, 0.1);
 }
 
 .delete-button,
@@ -293,9 +324,10 @@ h2 {
   font-size: 1.28rem;
   font-weight: 900;
   transition:
-    background 180ms ease,
-    color 180ms ease,
-    transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    background 200ms ease-in-out,
+    color 200ms ease-in-out,
+    transform 180ms ease-out,
+    box-shadow 200ms ease-in-out;
 }
 
 .delete-button:hover,
@@ -306,7 +338,6 @@ h2 {
 
 .delete-button:active,
 .icon-button:active,
-.step-button:active,
 .primary-button:active,
 .floating-add:active,
 .period-option:active {
@@ -348,8 +379,9 @@ h2 {
   width: 0%;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, #208f68, #54c995);
-  transition: width 430ms cubic-bezier(0.22, 1, 0.36, 1);
+  background: linear-gradient(90deg, #208f68 0%, #3bb47f 45%, #67d4a5 100%);
+  transition: width 360ms ease-in-out;
+  will-change: width;
 }
 
 .task-actions {
@@ -368,16 +400,16 @@ h2 {
   font-weight: 900;
   box-shadow: 0 9px 20px rgba(31, 47, 41, 0.07);
   transition:
-    background 190ms ease,
-    border-color 190ms ease,
-    box-shadow 190ms ease,
-    transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    background 200ms ease-in-out,
+    border-color 200ms ease-in-out,
+    box-shadow 200ms ease-in-out,
+    transform 180ms ease-out;
 }
 
 .step-button:hover:not(:disabled) {
   border-color: rgba(32, 143, 104, 0.28);
   background: rgba(32, 143, 104, 0.08);
-  transform: translateY(-1px) scale(1.01);
+  transform: translateY(-1px);
 }
 
 .step-button:disabled {
@@ -395,6 +427,15 @@ h2 {
 .step-button-primary:hover:not(:disabled) {
   background: var(--primary-dark);
   box-shadow: 0 14px 28px rgba(32, 143, 104, 0.28);
+}
+
+.step-button.is-pressed,
+.delete-button.is-pressed,
+.icon-button.is-pressed,
+.primary-button.is-pressed,
+.floating-add.is-pressed,
+.period-option.is-pressed {
+  transform: scale(0.95);
 }
 
 .floating-add {
@@ -438,7 +479,7 @@ h2 {
   position: absolute;
   inset: 0;
   background: rgba(20, 27, 45, 0);
-  transition: background 220ms ease;
+  transition: background 240ms ease-in-out;
 }
 
 .sheet.is-open .sheet-backdrop {
@@ -459,8 +500,8 @@ h2 {
   transform: translateY(28px) scale(0.985);
   opacity: 0;
   transition:
-    opacity 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    opacity 240ms ease-in-out,
+    transform 240ms ease-in-out;
 }
 
 .sheet.is-open .sheet-panel {
@@ -544,10 +585,10 @@ input:focus {
   color: var(--muted);
   font-weight: 900;
   transition:
-    background 190ms ease,
-    border-color 190ms ease,
-    color 190ms ease,
-    transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    background 200ms ease-in-out,
+    border-color 200ms ease-in-out,
+    color 200ms ease-in-out,
+    transform 180ms ease-out;
 }
 
 .period-option:hover {
@@ -575,15 +616,15 @@ input:focus {
   font-weight: 900;
   box-shadow: 0 14px 26px rgba(32, 143, 104, 0.24);
   transition:
-    background 190ms ease,
-    box-shadow 190ms ease,
-    transform 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    background 200ms ease-in-out,
+    box-shadow 200ms ease-in-out,
+    transform 180ms ease-out;
 }
 
 .primary-button:hover {
   background: var(--primary-dark);
   box-shadow: 0 18px 34px rgba(32, 143, 104, 0.3);
-  transform: translateY(-1px) scale(1.005);
+  transform: translateY(-1px);
 }
 
 .empty-state {
@@ -643,8 +684,12 @@ input:focus {
     transform: scale(1);
   }
 
-  42% {
-    transform: translateY(-2px) scale(1.018);
+  35% {
+    transform: translateY(-4px) scale(1.014);
+  }
+
+  65% {
+    transform: translateY(0) scale(1.006);
   }
 
   100% {
@@ -733,51 +778,5 @@ input:focus {
     animation-duration: 1ms !important;
     scroll-behavior: auto !important;
     transition-duration: 1ms !important;
-  }
-}
-/* Плавность для всех элементов */
-* {
-  transition: all 0.25s ease-in-out;
-}
-
-/* Кнопки */
-button, .btn {
-  transition: all 0.2s ease;
-}
-
-button:active {
-  transform: scale(0.95);
-}
-
-/* Карточки задач */
-.task, .card, .goal {
-  transition: all 0.3s ease;
-}
-
-.task:hover, .card:hover {
-  transform: translateY(-3px);
-}
-
-/* Прогресс */
-.progress, .progress-bar {
-  transition: width 0.4s ease-in-out;
-}
-}
-.completed {
-  animation: completeAnim 0.6s ease;
-}
-
-@keyframes completeAnim {
-  0% {
-    transform: scale(1);
-    background-color: transparent;
-  }
-  50% {
-    transform: scale(1.05);
-    background-color: rgba(100, 200, 100, 0.2);
-  }
-  100% {
-    transform: scale(1);
-    background-color: rgba(100, 200, 100, 0.1);
   }
 }
