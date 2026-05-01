@@ -1,5 +1,5 @@
+alert("JS работает");
 const STORAGE_KEY = "mvp-goals-tracker";
-
 const taskForm = document.querySelector("#taskForm");
 const taskTitleInput = document.querySelector("#taskTitle");
 const startDateInput = document.querySelector("#startDate");
