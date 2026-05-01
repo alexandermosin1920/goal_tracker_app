@@ -153,9 +153,7 @@ function updateTaskCard(card, task, options = {}) {
   const incrementButton = card.querySelector('[data-action="increment"]');
   const deadlineIndicator = card.querySelector(".deadline-indicator");
 
-  if (!card.classList.contains("is-complete")) {
-  card.classList.add("is-complete");
-}
+  card.classList.toggle("is-complete");
   card.classList.toggle("is-due-soon", deadline.isSoon && !isComplete);
   card.querySelector(".task-title").textContent = task.title;
   card.querySelector(".task-status").textContent = isComplete ? "✓ Выполнено" : "В процессе";
