@@ -16,7 +16,6 @@ const periodButtons = document.querySelectorAll(".period-option");
 
 let tasks = loadTasks();
 let periodMode = "month";
-let recentlyCompletedTaskId = null;
 
 applyPeriodPreset(periodMode);
 render();
@@ -85,7 +84,6 @@ function render() {
   renderTaskList();
   emptyState.hidden = tasks.length > 0;
   updateSummary();
-  recentlyCompletedTaskId = null;
 }
 
 function renderTaskList() {
@@ -99,10 +97,7 @@ function renderTaskList() {
 function createTaskCard(task) {
   const card = taskTemplate.content.firstElementChild.cloneNode(true);
   card.dataset.taskId = task.id;
-  updateTaskCard(card, task, {
-    animateProgress: true,
-    animateCompletion: task.id === recentlyCompletedTaskId,
-  });
+  updateTaskCard(card, task, { animateProgress: true });
 
   const decrementButton = card.querySelector('[data-action="decrement"]');
   const incrementButton = card.querySelector('[data-action="increment"]');
@@ -149,6 +144,7 @@ function createTaskCard(task) {
 }
 
 function updateTaskCard(card, task, options = {}) {
+  const wasComplete = card.dataset.completedState === "true";
   const isComplete = isTaskComplete(task);
   const percent = getTaskPercent(task);
   const deadline = getDeadlineState(task);
@@ -174,7 +170,7 @@ function updateTaskCard(card, task, options = {}) {
     progressFill.style.width = `${percent}%`;
   }
 
-  deadlineIndicator.style.setProperty("--deadline-progress", `${deadline.percent}%`);
+  deadlineIndicator.style.setProperty("--deadline-progress", `${deadline.degrees}deg`);
   deadlineIndicator.style.setProperty("--deadline-color", deadline.color);
   deadlineIndicator.style.setProperty("--deadline-minute-angle", `${deadline.minuteAngle}deg`);
   deadlineIndicator.style.setProperty("--deadline-hour-angle", `${deadline.hourAngle}deg`);
@@ -186,9 +182,11 @@ function updateTaskCard(card, task, options = {}) {
     playPressAnimation(options.pressedButton);
   }
 
-  if (options.animateCompletion) {
+  if (options.animateCompletion && isComplete && !wasComplete) {
     playCompletionAnimation(card);
   }
+
+  card.dataset.completedState = String(isComplete);
 }
 
 function getSortedTasks() {
@@ -352,14 +350,15 @@ function getDeadlineState(task) {
   const remaining = end - now;
   const percent = clampProgress(((now - start) / total) * 100, 0, 100);
   const soonWindow = Math.max(total * 0.18, 3 * 24 * 60 * 60 * 1000);
-  const totalMinutes = (percent / 100) * 720;
+  const progressRatio = percent / 100;
 
   return {
     percent,
+    degrees: progressRatio * 360,
     isSoon: remaining <= soonWindow,
-    color: interpolateTimelineColor(percent / 100),
-    minuteAngle: (totalMinutes * 6) % 360,
-    hourAngle: (totalMinutes / 2) % 360,
+    color: interpolateTimelineColor(progressRatio),
+    minuteAngle: progressRatio * 360,
+    hourAngle: progressRatio * 30,
   };
 }
 
@@ -429,9 +428,10 @@ function playCompletionAnimation(card) {
 function interpolateTimelineColor(progress) {
   const palette = [
     { stop: 0, color: [244, 221, 128] },
-    { stop: 0.3, color: [237, 197, 95] },
-    { stop: 0.6, color: [230, 151, 83] },
-    { stop: 0.8, color: [218, 114, 78] },
+    { stop: 0.2, color: [238, 208, 102] },
+    { stop: 0.4, color: [234, 184, 88] },
+    { stop: 0.6, color: [228, 146, 80] },
+    { stop: 0.8, color: [217, 112, 74] },
     { stop: 1, color: [205, 84, 84] },
   ];
   const clampedProgress = Math.min(Math.max(progress, 0), 1);
