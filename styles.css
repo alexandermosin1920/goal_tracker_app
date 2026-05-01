@@ -770,3 +770,7 @@ input:focus {
     transition-duration: 1ms !important;
   }
 }
+.task-card.is-complete {
+  animation: none !important;
+  transform: none !important;
+}
