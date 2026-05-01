@@ -170,7 +170,10 @@ function updateTaskCard(card, task, options = {}) {
     progressFill.style.width = `${percent}%`;
   }
 
-  deadlineIndicator.style.setProperty("--deadline-progress", `${deadline.degrees}deg`);
+  something.style.setProperty(
+  "--deadline-progress",
+  `${progress}deg`
+);
   deadlineIndicator.style.setProperty("--deadline-color", deadline.color);
   deadlineIndicator.style.setProperty("--deadline-minute-angle", `${deadline.minuteAngle}deg`);
   deadlineIndicator.style.setProperty("--deadline-hour-angle", `${deadline.hourAngle}deg`);
