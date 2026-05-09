@@ -207,7 +207,9 @@ h2 {
   height: 28px;
   border-radius: 50%;
   background: #ffcc33;
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+  box-shadow:
+  0 0 10px rgba(255, 170, 0, 0.6),
+  0 8px 18px rgba(15, 23, 42, 0.18);
   transition:
     transform var(--theme-transition),
     background var(--theme-transition),
@@ -381,7 +383,7 @@ h2 {
 .deadline-indicator::before {
   content: "";
   position: absolute;
-  inset: 1.5px;
+  inset: 2.5px;
   border-radius: inherit;
   background: conic-gradient(
     from -90deg,
@@ -938,4 +940,11 @@ input:focus {
     scroll-behavior: auto !important;
     transition-duration: 1ms !important;
   }
+}
+* {
+  transition:
+    background-color var(--theme-transition),
+    color var(--theme-transition),
+    border-color var(--theme-transition),
+    box-shadow var(--theme-transition) !important;
 }
