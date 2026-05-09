@@ -224,8 +224,8 @@ h2 {
   transform: translateX(24px);
   background: #dfe7ff;
   box-shadow:
-    inset -4px 0 0 0 #8da2d8,
-    0 8px 18px rgba(2, 6, 16, 0.34);
+  0 0 12px rgba(255, 160, 0, 0.7),
+  0 8px 18px rgba(15, 23, 42, 0.18);
 }
 
 .theme-toggle-sun,
@@ -383,7 +383,7 @@ h2 {
 .deadline-indicator::before {
   content: "";
   position: absolute;
-  inset: 2.5px;
+  inset: 2.8px;
   border-radius: inherit;
   background: conic-gradient(
     from -90deg,
@@ -947,4 +947,11 @@ input:focus {
     color var(--theme-transition),
     border-color var(--theme-transition),
     box-shadow var(--theme-transition) !important;
+}
+* {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease !important;
 }
