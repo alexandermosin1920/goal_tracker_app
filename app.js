@@ -13,14 +13,20 @@ const summaryProgress = document.querySelector("#summaryProgress");
 const openTaskFormButton = document.querySelector("#openTaskForm");
 const taskSheet = document.querySelector("#taskSheet");
 const periodButtons = document.querySelectorAll(".period-option");
+const themeToggle = document.querySelector("#themeToggle");
+const themeColorMeta = document.querySelector('meta[name="theme-color"]');
 
+const THEME_KEY = "mvp-goals-theme";
 let tasks = loadTasks();
 let periodMode = "month";
+let theme = loadTheme();
 
+applyTheme(theme);
 applyPeriodPreset(periodMode);
 render();
 
 openTaskFormButton.addEventListener("click", openTaskSheet);
+themeToggle.addEventListener("click", toggleTheme);
 
 taskSheet.addEventListener("click", (event) => {
   if (event.target.matches("[data-close-sheet]")) {
@@ -160,6 +166,7 @@ function updateTaskCard(card, task, options = {}) {
   card.querySelector(".task-period").textContent = formatPeriod(task.startDate, task.endDate);
   card.querySelector(".task-counter").textContent = `${task.completed} / ${task.total}`;
   card.querySelector(".task-percent").textContent = `${percent}%`;
+  progressFill.style.setProperty("--progress-gradient", buildProgressGradient(percent, isComplete));
 
   if (options.animateProgress) {
     progressFill.style.width = "0%";
@@ -172,8 +179,6 @@ function updateTaskCard(card, task, options = {}) {
 
   deadlineIndicator.style.setProperty("--deadline-progress", `${deadline.degrees}deg`);
   deadlineIndicator.style.setProperty("--deadline-color", deadline.color);
-  deadlineIndicator.style.setProperty("--deadline-minute-angle", `${deadline.minuteAngle}deg`);
-  deadlineIndicator.style.setProperty("--deadline-hour-angle", `${deadline.hourAngle}deg`);
 
   decrementButton.disabled = task.completed <= 0;
   incrementButton.disabled = isComplete;
@@ -182,7 +187,7 @@ function updateTaskCard(card, task, options = {}) {
     playPressAnimation(options.pressedButton);
   }
 
-  if (options.animateCompletion && isComplete && !wasComplete) {
+  if (options.animateCompletion && isComplete && !wasComplete && !card.classList.contains("completed")) {
     playCompletionAnimation(card);
   }
 
@@ -250,7 +255,27 @@ function updateSummary() {
   const percent = totalPoints === 0 ? 0 : Math.round((completedPoints / totalPoints) * 100);
 
   summaryCount.textContent = formatTasksCount(tasks.length);
-  summaryProgress.textContent = `${percent}%`;
+  summaryProgress.style.width = `${percent}%`;
+  summaryProgress.style.setProperty("--summary-progress-gradient", buildProgressGradient(percent));
+}
+
+function loadTheme() {
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  return savedTheme === "dark" ? "dark" : "light";
+}
+
+function applyTheme(nextTheme) {
+  theme = nextTheme;
+  document.documentElement.dataset.theme = nextTheme;
+  localStorage.setItem(THEME_KEY, nextTheme);
+  themeToggle.setAttribute("aria-pressed", String(nextTheme === "dark"));
+  if (themeColorMeta) {
+    themeColorMeta.setAttribute("content", nextTheme === "dark" ? "#09111f" : "#f6f7f4");
+  }
+}
+
+function toggleTheme() {
+  applyTheme(theme === "dark" ? "light" : "dark");
 }
 
 function loadTasks() {
@@ -361,8 +386,6 @@ function getDeadlineState(task) {
     degrees: progressRatio * 360,
     isSoon: remaining <= soonWindow,
     color: interpolateTimelineColor(progressRatio),
-    minuteAngle: progressRatio * 360,
-    hourAngle: progressRatio * 30,
   };
 }
 
@@ -434,6 +457,17 @@ function playCompletionAnimation(card) {
   }, 760);
 }
 
+function buildProgressGradient(percent, isComplete = false) {
+  const start = interpolateRgb([182, 232, 191], [64, 196, 99], percent / 100);
+  const end = interpolateRgb([138, 220, 154], [14, 163, 74], Math.min(percent / 100 + 0.18, 1));
+
+  if (isComplete) {
+    return "linear-gradient(90deg, rgb(34, 197, 94) 0%, rgb(22, 163, 74) 100%)";
+  }
+
+  return `linear-gradient(90deg, ${rgbToString(start)} 0%, ${rgbToString(end)} 100%)`;
+}
+
 function interpolateTimelineColor(progress) {
   const palette = [
     { stop: 0, color: [244, 221, 128] },
@@ -463,6 +497,13 @@ function interpolateTimelineColor(progress) {
 
 function rgbToString(channels) {
   return `rgb(${channels[0]}, ${channels[1]}, ${channels[2]})`;
+}
+
+function interpolateRgb(start, end, progress) {
+  const clampedProgress = Math.min(Math.max(progress, 0), 1);
+  return start.map((channel, index) =>
+    Math.round(channel + (end[index] - channel) * clampedProgress),
+  );
 }
 
 function createId() {

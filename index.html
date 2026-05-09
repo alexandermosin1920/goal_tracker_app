@@ -17,11 +17,19 @@
     <main class="app-shell">
       <header class="app-header">
         <div class="brand">
-          <h1>Move On Step</h1>
+          <h1 class="brand-mark">Move On Step</h1>
         </div>
-        <div class="summary" aria-live="polite">
-          <span id="summaryCount">0 задач</span>
-          <strong id="summaryProgress">0%</strong>
+        <div class="header-actions">
+          <div class="summary" aria-live="polite">
+            <span id="summaryCount">0 задач</span>
+            <div class="summary-progress" aria-hidden="true">
+              <div id="summaryProgress" class="summary-progress-fill"></div>
+            </div>
+          </div>
+          <button id="themeToggle" class="theme-toggle" type="button" aria-label="Переключить тему">
+            <span class="theme-toggle-sun" aria-hidden="true"></span>
+            <span class="theme-toggle-moon" aria-hidden="true"></span>
+          </button>
         </div>
       </header>
 
