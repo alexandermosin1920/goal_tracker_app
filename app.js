@@ -200,6 +200,9 @@ function updateTaskCard(card, task, options = {}) {
   card.classList.remove("just-completed");
 }
 
+if (isComplete && card.dataset.completedState === "true") {
+  options.animateCompletion = false;
+}
   card.dataset.completedState = String(isComplete);
 }
 

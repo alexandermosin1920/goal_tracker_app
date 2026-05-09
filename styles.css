@@ -941,13 +941,7 @@ input:focus {
     transition-duration: 1ms !important;
   }
 }
-* {
-  transition:
-    background-color var(--theme-transition),
-    color var(--theme-transition),
-    border-color var(--theme-transition),
-    box-shadow var(--theme-transition) !important;
-}
+
 * {
   transition:
     background-color 0.25s ease,
