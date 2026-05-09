@@ -159,7 +159,11 @@ function updateTaskCard(card, task, options = {}) {
   const incrementButton = card.querySelector('[data-action="increment"]');
   const deadlineIndicator = card.querySelector(".deadline-indicator");
 
-  card.classList.toggle("is-complete", isComplete);
+  if (isComplete && card.dataset.completedState !== "true") {
+  card.classList.add("is-complete");
+} else if (!isComplete) {
+  card.classList.remove("is-complete");
+}
   card.classList.toggle("is-due-soon", deadline.isSoon && !isComplete);
   card.querySelector(".task-title").textContent = task.title;
   card.querySelector(".task-status").textContent = isComplete ? "✓ Выполнено" : "В процессе";
@@ -192,8 +196,9 @@ function updateTaskCard(card, task, options = {}) {
   }
 
   if (!isComplete) {
-    card.classList.remove("completed");
-  }
+  card.classList.remove("completed");
+  card.classList.remove("just-completed");
+}
 
   card.dataset.completedState = String(isComplete);
 }
