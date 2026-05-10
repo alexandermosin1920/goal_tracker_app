@@ -182,6 +182,7 @@ function updateTaskCard(card, task, options = {}) {
   }
 
   deadlineIndicator.style.setProperty("--deadline-progress", `${deadline.degrees}deg`);
+  console.log("ANGLE:", deadline.degrees);
   deadlineIndicator.style.setProperty("--deadline-color", deadline.color);
 
   decrementButton.disabled = task.completed <= 0;
