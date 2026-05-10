@@ -52,6 +52,18 @@
   box-sizing: border-box;
 }
 
+*,
+*::before,
+*::after {
+  transition:
+    background-color var(--theme-transition),
+    color var(--theme-transition),
+    border-color var(--theme-transition),
+    box-shadow var(--theme-transition),
+    fill var(--theme-transition),
+    stroke var(--theme-transition);
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -190,7 +202,7 @@ h2 {
   border-radius: 999px;
   background: linear-gradient(180deg, #dff2ff 0%, #cde8fb 100%);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-  transform: translateY(-6px);
+  transform: translateY(-4px);
   transition:
     transform 180ms ease-out,
     background var(--theme-transition),
@@ -207,7 +219,11 @@ h2 {
   height: 28px;
   border-radius: 50%;
   background: #ffcc33;
-  box-shadow: 0 6px 12px rgba(255, 140, 0, 0.35);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+  transition:
+    transform var(--theme-transition),
+    background var(--theme-transition),
+    box-shadow var(--theme-transition);
 }
 
 :root[data-theme="dark"] .theme-toggle {
@@ -218,8 +234,8 @@ h2 {
   transform: translateX(24px);
   background: #dfe7ff;
   box-shadow:
-  0 0 12px rgba(255, 160, 0, 0.7),
-  0 8px 18px rgba(15, 23, 42, 0.18);
+    inset -4px 0 0 0 #8da2d8,
+    0 8px 18px rgba(2, 6, 16, 0.34);
 }
 
 .theme-toggle-sun,
@@ -291,10 +307,8 @@ h2 {
 }
 
 .task-card.just-completed {
-  animation: completeBounce 720ms ease-in-out both;
+  animation: completeBounce 560ms ease-in-out both;
 }
-
-
 
 .task-top {
   display: grid;
@@ -352,7 +366,6 @@ h2 {
 .deadline-indicator {
   --deadline-progress: 0deg;
   --deadline-color: rgb(244, 221, 128);
-
   position: relative;
   display: grid;
   place-items: center;
@@ -360,33 +373,35 @@ h2 {
   height: 34px;
   margin-top: 3px;
   border-radius: 50%;
-
-  background: conic-gradient(
-    from -90deg,
-    var(--deadline-color) 0deg,
-    var(--deadline-color) var(--deadline-progress),
-    rgba(214, 221, 216, 0.25) var(--deadline-progress),
-    rgba(214, 221, 216, 0.25) 360deg
-  );
-
+  overflow: hidden;
   transition:
     background 320ms ease-in-out,
     box-shadow 260ms ease-in-out,
     transform 260ms ease-in-out;
 }
 
- 
+.deadline-indicator::before {
+  content: "";
+  position: absolute;
+  inset: 1.5px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from -90deg,
+    var(--deadline-color) 0deg,
+    var(--deadline-color) var(--deadline-progress),
+    rgba(214, 221, 216, 0.34) var(--deadline-progress),
+    rgba(214, 221, 216, 0.34) 360deg
+  );
+}
 
 .deadline-indicator__face {
   position: relative;
+  z-index: 2;
   width: 16px;
   height: 16px;
-  border-radius: 50%;
-
-  background: var(--surface-solid); /* вот это главное */
-  z-index: 2; /* вот это тоже важно */
-
   border: 1px solid rgba(107, 116, 133, 0.36);
+  border-radius: 50%;
+  background: var(--surface-solid);
   box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
 }
 
@@ -827,19 +842,17 @@ input:focus {
   }
 
   35% {
-    transform: translateY(-4px) scale(1.014);
+    transform: translateY(-2px) scale(1.01);
   }
 
   65% {
-    transform: translateY(0) scale(1.006);
+    transform: translateY(0) scale(1.004);
   }
 
   100% {
     transform: scale(1);
   }
 }
-
-
 
 @keyframes badgePop {
   0% {
@@ -913,4 +926,3 @@ input:focus {
     transition-duration: 1ms !important;
   }
 }
-

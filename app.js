@@ -129,7 +129,7 @@ function createTaskCard(task) {
 
       return {
         ...nextTask,
-        justCompleted: !wasComplete && isTaskComplete(nextTask) && !currentTask.justCompleted,
+        justCompleted: !wasComplete && isTaskComplete(nextTask),
       };
     });
     updateTaskCard(card, updatedTask, {
@@ -159,11 +159,7 @@ function updateTaskCard(card, task, options = {}) {
   const incrementButton = card.querySelector('[data-action="increment"]');
   const deadlineIndicator = card.querySelector(".deadline-indicator");
 
-  if (isComplete && card.dataset.completedState !== "true") {
-  card.classList.add("is-complete");
-} else if (!isComplete) {
-  card.classList.remove("is-complete");
-}
+  card.classList.toggle("is-complete", isComplete);
   card.classList.toggle("is-due-soon", deadline.isSoon && !isComplete);
   card.querySelector(".task-title").textContent = task.title;
   card.querySelector(".task-status").textContent = isComplete ? "✓ Выполнено" : "В процессе";
@@ -182,7 +178,6 @@ function updateTaskCard(card, task, options = {}) {
   }
 
   deadlineIndicator.style.setProperty("--deadline-progress", `${deadline.degrees}deg`);
-  console.log("ANGLE:", deadline.degrees);
   deadlineIndicator.style.setProperty("--deadline-color", deadline.color);
 
   decrementButton.disabled = task.completed <= 0;
@@ -193,14 +188,12 @@ function updateTaskCard(card, task, options = {}) {
   }
 
   if (options.animateCompletion && isComplete && !wasComplete) {
-  playCompletionAnimation(card);
-  options.animateCompletion = false;
-}
+    playCompletionAnimation(card);
+  }
 
   if (!isComplete) {
-  card.classList.remove("completed");
-  card.classList.remove("just-completed");
-}
+    card.classList.remove("just-completed");
+  }
 
   card.dataset.completedState = String(isComplete);
 }
@@ -384,7 +377,7 @@ function getDeadlineState(task) {
   const now = Date.now();
   const total = Math.max(end - start, 1);
   const remaining = end - now;
-  const percent = Math.min(Math.max((now - start) / total, 0), 1) * 100;
+  const percent = clampProgress(((now - start) / total) * 100, 0, 100);
   const soonWindow = Math.max(total * 0.18, 3 * 24 * 60 * 60 * 1000);
   const progressRatio = percent / 100;
 
@@ -451,17 +444,19 @@ function playPressAnimation(button) {
 }
 
 function playCompletionAnimation(card) {
-  if (card.classList.contains("completed")) {
+  if (card.dataset.completionAnimating === "true") {
     return;
   }
 
-  card.classList.add("completed");
+  card.dataset.completionAnimating = "true";
   card.classList.remove("just-completed");
   void card.offsetWidth;
   card.classList.add("just-completed");
+
   setTimeout(() => {
     card.classList.remove("just-completed");
-  }, 760);
+    card.dataset.completionAnimating = "false";
+  }, 560);
 }
 
 function buildProgressGradient(percent, isComplete = false) {
