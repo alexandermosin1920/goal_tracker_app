@@ -103,6 +103,7 @@ function renderTaskList() {
 function createTaskCard(task) {
   const card = taskTemplate.content.firstElementChild.cloneNode(true);
   card.dataset.taskId = task.id;
+  card.dataset.completionPlayed = "false";
   updateTaskCard(card, task, { animateProgress: true });
 
   const decrementButton = card.querySelector('[data-action="decrement"]');
@@ -120,21 +121,15 @@ function createTaskCard(task) {
   });
 
   incrementButton.addEventListener("click", () => {
-    const updatedTask = updateTaskById(task.id, (currentTask) => {
-      const wasComplete = isTaskComplete(currentTask);
-      const nextTask = {
-        ...currentTask,
-        completed: clampNumber(currentTask.completed + 1, 0, currentTask.total),
-      };
+    const wasComplete = isTaskComplete(task);
+    const updatedTask = updateTaskById(task.id, (currentTask) => ({
+      ...currentTask,
+      completed: clampNumber(currentTask.completed + 1, 0, currentTask.total),
+    }));
 
-      return {
-        ...nextTask,
-        justCompleted: !wasComplete && isTaskComplete(nextTask),
-      };
-    });
     updateTaskCard(card, updatedTask, {
       pressedButton: incrementButton,
-      animateCompletion: updatedTask.justCompleted,
+      animateCompletion: !wasComplete && isTaskComplete(updatedTask),
     });
     saveTasks();
     updateSummary();
@@ -187,12 +182,20 @@ function updateTaskCard(card, task, options = {}) {
     playPressAnimation(options.pressedButton);
   }
 
-  if (options.animateCompletion && isComplete && !wasComplete) {
+  const shouldAnimateCompletion =
+    Boolean(options.animateCompletion) &&
+    isComplete &&
+    !wasComplete &&
+    card.dataset.completionPlayed !== "true";
+
+  if (shouldAnimateCompletion) {
     playCompletionAnimation(card);
+    card.dataset.completionPlayed = "true";
   }
 
   if (!isComplete) {
     card.classList.remove("just-completed");
+    card.dataset.completionPlayed = "false";
   }
 
   card.dataset.completedState = String(isComplete);
@@ -341,8 +344,7 @@ function normalizeTask(task) {
 }
 
 function saveTasks() {
-  const serializableTasks = tasks.map(({ justCompleted, ...task }) => task);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(serializableTasks));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
 }
 
 function updateTaskById(taskId, updater) {
@@ -353,10 +355,7 @@ function updateTaskById(taskId, updater) {
     }
 
     const nextTask = updater(task);
-    updatedTask = {
-      ...normalizeTask(nextTask),
-      justCompleted: Boolean(nextTask.justCompleted),
-    };
+    updatedTask = normalizeTask(nextTask);
     return updatedTask;
   });
 
@@ -377,7 +376,7 @@ function getDeadlineState(task) {
   const now = Date.now();
   const total = Math.max(end - start, 1);
   const remaining = end - now;
-  const percent = clampProgress(((now - start) / total) * 100, 0, 100);
+  const percent = Math.min(Math.max((now - start) / total, 0), 1) * 100;
   const soonWindow = Math.max(total * 0.18, 3 * 24 * 60 * 60 * 1000);
   const progressRatio = percent / 100;
 
@@ -444,19 +443,12 @@ function playPressAnimation(button) {
 }
 
 function playCompletionAnimation(card) {
-  if (card.dataset.completionAnimating === "true") {
-    return;
-  }
-
-  card.dataset.completionAnimating = "true";
   card.classList.remove("just-completed");
   void card.offsetWidth;
   card.classList.add("just-completed");
-
   setTimeout(() => {
     card.classList.remove("just-completed");
-    card.dataset.completionAnimating = "false";
-  }, 560);
+  }, 420);
 }
 
 function buildProgressGradient(percent, isComplete = false) {
