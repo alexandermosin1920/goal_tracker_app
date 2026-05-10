@@ -207,13 +207,7 @@ h2 {
   height: 28px;
   border-radius: 50%;
   background: #ffcc33;
-  box-shadow:
-  0 0 10px rgba(255, 170, 0, 0.6),
-  0 8px 18px rgba(15, 23, 42, 0.18);
-  transition:
-    transform var(--theme-transition),
-    background var(--theme-transition),
-    box-shadow var(--theme-transition);
+  box-shadow: 0 6px 12px rgba(255, 140, 0, 0.35);
 }
 
 :root[data-theme="dark"] .theme-toggle {
@@ -300,16 +294,7 @@ h2 {
   animation: completeBounce 720ms ease-in-out both;
 }
 
-.task-card.just-completed::after {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  pointer-events: none;
-  border-radius: inherit;
-  background: radial-gradient(circle at 50% 15%, rgba(63, 191, 134, 0.22), transparent 58%);
-  opacity: 0;
-  animation: completeGlow 720ms ease-in-out both;
-}
+
 
 .task-top {
   display: grid;
@@ -367,6 +352,7 @@ h2 {
 .deadline-indicator {
   --deadline-progress: 0deg;
   --deadline-color: rgb(244, 221, 128);
+
   position: relative;
   display: grid;
   place-items: center;
@@ -374,35 +360,33 @@ h2 {
   height: 34px;
   margin-top: 3px;
   border-radius: 50%;
+
+  background: conic-gradient(
+    from -90deg,
+    var(--deadline-color) 0deg,
+    var(--deadline-color) var(--deadline-progress),
+    rgba(214, 221, 216, 0.25) var(--deadline-progress),
+    rgba(214, 221, 216, 0.25) 360deg
+  );
+
   transition:
     background 320ms ease-in-out,
     box-shadow 260ms ease-in-out,
     transform 260ms ease-in-out;
 }
 
-.deadline-indicator::before {
-  content: "";
-  position: absolute;
-  inset: 2.8px;
-  border-radius: inherit;
-  background: conic-gradient(
-    from -90deg,
-    var(--deadline-color) 0deg,
-    var(--deadline-color) var(--deadline-progress),
-    rgba(214, 221, 216, 0.34) var(--deadline-progress),
-    rgba(214, 221, 216, 0.34) 360deg
-  );
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.2px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 1.6px), #000 calc(100% - 1.2px));
-}
+ 
 
 .deadline-indicator__face {
   position: relative;
-  width: 18px;
-  height: 18px;
-  border: 1px solid rgba(107, 116, 133, 0.36);
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--surface-solid) 84%, transparent);
+
+  background: var(--surface-solid); /* вот это главное */
+  z-index: 2; /* вот это тоже важно */
+
+  border: 1px solid rgba(107, 116, 133, 0.36);
   box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
 }
 
@@ -855,19 +839,7 @@ input:focus {
   }
 }
 
-@keyframes completeGlow {
-  0% {
-    opacity: 0;
-  }
 
-  38% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-  }
-}
 
 @keyframes badgePop {
   0% {
@@ -942,10 +914,3 @@ input:focus {
   }
 }
 
-* {
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease,
-    border-color 0.25s ease,
-    box-shadow 0.25s ease !important;
-}

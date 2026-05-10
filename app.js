@@ -129,7 +129,7 @@ function createTaskCard(task) {
 
       return {
         ...nextTask,
-        justCompleted: !wasComplete && isTaskComplete(nextTask),
+        justCompleted: !wasComplete && isTaskComplete(nextTask) && !currentTask.justCompleted,
       };
     });
     updateTaskCard(card, updatedTask, {
@@ -191,18 +191,16 @@ function updateTaskCard(card, task, options = {}) {
     playPressAnimation(options.pressedButton);
   }
 
-  if (options.animateCompletion && isComplete && !wasComplete && !card.classList.contains("completed")) {
-    playCompletionAnimation(card);
-  }
+  if (options.animateCompletion && isComplete && !wasComplete) {
+  playCompletionAnimation(card);
+  options.animateCompletion = false;
+}
 
   if (!isComplete) {
   card.classList.remove("completed");
   card.classList.remove("just-completed");
 }
 
-if (isComplete && card.dataset.completedState === "true") {
-  options.animateCompletion = false;
-}
   card.dataset.completedState = String(isComplete);
 }
 
@@ -385,7 +383,7 @@ function getDeadlineState(task) {
   const now = Date.now();
   const total = Math.max(end - start, 1);
   const remaining = end - now;
-  const percent = clampProgress(((now - start) / total) * 100, 0, 100);
+  const percent = Math.min(Math.max((now - start) / total, 0), 1) * 100;
   const soonWindow = Math.max(total * 0.18, 3 * 24 * 60 * 60 * 1000);
   const progressRatio = percent / 100;
 
